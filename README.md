@@ -2,4 +2,4 @@ A client requested a website with a "retro-tech" look. Unfortunately, the client
 
 The code could very likely use some cleanup(and I'm still interested enough in it that I may very well revisit it at some time in the future), but the foundation is there and working rather well.
 
-You can see it action [here](http://lowtolerance.github.com/Popout.js)(and also [here](robnixondesigns.com/generica)).
+You can see it action [here](http://lowtolerance.github.com/Popout.js)(and also [here](http://robnixondesigns.com/generica)).
