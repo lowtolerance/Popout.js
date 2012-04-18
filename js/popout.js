@@ -233,7 +233,7 @@
 		return this.width;
 	}
 
-	$(document).ready(function () {
+	(function () {
 		//Inject our canvas into the "background".
 		//Excanvas doesn't like the way jQuery handles DOM elements, 
 		//so we're using straight DOM methods.
@@ -241,7 +241,7 @@
 			w = d.getElementById("wrapper"),
 			divbg = d.createElement("div"),
 			cvs = d.createElement("canvas"),
-			size = new GetWidth();
+			size = config.width || new GetWidth();
 
 		cvs.setAttribute("width", size.width);
 		cvs.setAttribute("height", config.height || getDocHeight());
@@ -270,7 +270,9 @@
 			var size = new GetWidth(),
 				depth = document.getElementById(config.canvasID),
 				height = $(document).height(),
+				
 				docHeight = getDocHeight();
+				
 				if (config.vanishingPoint.recalc) {
 					setMidPoint();
 				}
@@ -282,5 +284,5 @@
 			draw();
 		});
 		draw();
-	});
+	}());
 }(POPOUT_cfg));
