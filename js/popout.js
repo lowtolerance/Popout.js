@@ -225,6 +225,7 @@
 			//IE 6+ in 'standards compliant mode'
 			this.width = document.documentElement.clientWidth;
 		}
+		return this.width;
 	}
 
 	$(document).ready(function () {
