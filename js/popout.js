@@ -9,9 +9,7 @@
 		'vanishingPoint': cfg.vanishingPoint || {
 			'x': Math.round($(document).width() / 2),
 			'y': Math.round($(document).height() / 2)
-		},
-		'height': cfg.height || Math.round($(document).height()),
-		'width': cfg.width || Math.round($(document).width()),
+		},	
 		'gradientStop': cfg.gradientStop || 60,
 		'stroke': cfg.stroke || false
 	},
@@ -133,7 +131,7 @@
 		}
 		if (canvas.getContext) {
 			ctx = canvas.getContext('2d');
-			ctx.clearRect(0, 0, config.width, config.height);
+			ctx.clearRect(0, 0, $(document).width(), $(document).height());
 		}
 	}
 
@@ -264,12 +262,13 @@
 		$(window).resize(function () {
 			var size = new GetWidth(),
 				depth = document.getElementById(config.canvasID),
+				height = $(document).height(),
 				docHeight = getDocHeight();
 
 
 			depth.setAttribute("width", size.width);
-			if (config.height < docHeight) {
-				depth.setAttribute("height", docHeight - config.height);
+			if (height < docHeight) {
+				depth.setAttribute("height", docHeight - height);
 			}
 			draw();
 		});

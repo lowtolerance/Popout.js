@@ -11,9 +11,6 @@ var POPOUT_cfg = {
 		'y': Math.round($(document).height() /2)
 	},
 
-	'height': Math.round($(document).height()),		//NOT CURRENTLY WORKING AS EXPECTED.
-	'width': Math.round($(document).width()),		//Override height and width. Useful for partial screen effect.
-
 	'gradientStop': 60,								//Color stop adjustment.
 	'stroke': true									//Apply stroke effect?
 }
