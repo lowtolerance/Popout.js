@@ -1,7 +1,6 @@
 //Configure Popout by defining these properties. Default values will be used where none are defined.
 //Note: If defining midPoint, BOTH 'x' and 'y' MUST BE DEFINED.
 
-
 var POPOUT_cfg = {
 	
 	'canvasID': 'depth',  							//ID to apply to injected canvas
