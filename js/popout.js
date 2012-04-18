@@ -13,7 +13,8 @@
 		},
 		'height': cfg.height || getDocHeight(),
 		'gradientStop': cfg.gradientStop || 60,
-		'stroke': cfg.stroke || false
+		'stroke': cfg.stroke || false,
+		'noSides': cfg.noSides || false
 	},
 
 	//CONSTANTS - DO NOT MODIFY
@@ -82,7 +83,7 @@
 	}
 
 	//Set up our canvas and draw each side. Additionally, set our gradient fill.
-	function drawFace(coord, popColor, x1, x2, side) {
+	function drawFace(coord, popColor, gs, x1, x2, side) {
 		//Gradients in our case run either up/down or left right.
 		//We have two algorithms depending on whether or not it's a sideways facing piece.
 		//Rather than parse the "rgb(r,g,b)" string(popColor) retrieved from elsewhere, it is simply
@@ -101,7 +102,7 @@
 			ctx = canvas.getContext('2d');
 			if (side) {
 				lineargradient = ctx.createLinearGradient(
-					coord[x1][X] + config.gradientStop,
+					coord[x1][X] + gs,
 					config.vanishingPoint.y,
 					config.vanishingPoint.x,
 					config.vanishingPoint.y
@@ -109,7 +110,7 @@
 			} else {
 				lineargradient = ctx.createLinearGradient(
 					coord[UPPER_LEFT][X],
-					coord[LOWER_RIGHT][Y] + config.gradientStop,
+					coord[LOWER_RIGHT][Y] + gs,
 					coord[UPPER_LEFT][X],
 					config.vanishingPoint.y
 				);
@@ -180,6 +181,7 @@
 				drawFace(
 					elements[a].coord,
 					elements[a].popColor,
+					config.gradientStop * -1,
 					LOWER_LEFT,
 					LOWER_RIGHT
 				);
@@ -188,27 +190,32 @@
 				drawFace(
 					elements[a].coord,
 					elements[a].popColor,
+					config.gradientStop,
 					UPPER_LEFT,
 					UPPER_RIGHT
 				);
 			}
-			if (elements[a].leftFace) {
-				drawFace(
-					elements[a].coord,
-					elements[a].popColor,
-					UPPER_LEFT,
-					LOWER_LEFT,
-					isSide
-				);
-			}
-			if (elements[a].rightFace) {
-				drawFace(
-					elements[a].coord,
-					elements[a].popColor,
-					UPPER_RIGHT,
-					LOWER_RIGHT,
-					isSide
-				);
+			if (!config.noSides) {
+				if (elements[a].leftFace) {
+					drawFace(
+						elements[a].coord,
+						elements[a].popColor,
+						config.gradientStop,
+						UPPER_LEFT,
+						LOWER_LEFT,
+						isSide
+					);
+				}
+				if (elements[a].rightFace) {
+					drawFace(
+						elements[a].coord,
+						elements[a].popColor,
+						config.gradientStop * -1,
+						UPPER_RIGHT,
+						LOWER_RIGHT,
+						isSide
+					);
+				}
 			}
 		}
 	}

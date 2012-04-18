@@ -1,0 +1,254 @@
+@charset "utf-8";
+/* RESET */
+* { margin:0; padding:0; } 
+
+	body {
+		font-family: Helvetica, Verdana, Arial, sans-serif;
+		font-size:62.5%;
+		background:#1b140b;
+		width:100%;
+	}
+/*header & navbar stuff*/
+	#header {
+		height:200px;
+		background:#f1ae00;
+		position:relative;
+	}
+	#header h1 {
+		font-size:12em;
+		float:left;
+		height:200px;
+		width:100%;
+		background:#f1ae00;
+	}
+	#header h1 a {
+		text-decoration:none;
+		color:#1b140b;
+		padding-left:22px
+	}
+	#header h1 a:hover {
+		color:#fff056;
+	}
+	#navbar {
+		position:absolute;
+		right:0;
+		z-index:3;
+		float:right;
+		width:360px;
+		height:200px;
+	}
+	#navbar {
+		list-style:none;
+	}
+	#navbar li {
+		float:left;
+	}
+	#navbar li a {
+		outline:none;
+		display:block;
+		width:71px;
+		height:200px;
+		text-indent:-9999px;
+		border-left:1px solid #1b140b;
+	}
+    .menuitem li a{
+		background:url(../images/menu-sprites.png) no-repeat #f1ae00;;
+	}
+	.menuitem li a:hover,.menuitem li a:focus {
+		background:url(../images/menu-sprites.png) no-repeat #1b140b;
+	}
+	.menuitem li a.active {
+		background:url(../images/menu-sprites.png) no-repeat #FFF056;
+	}
+	#about {
+		background-position:0 -410px;
+	}
+	#about:hover,#about:focus,#about:active {
+		background-position:0 -205px;
+	}
+	#about.active {
+		background-position:0 0;
+	}
+	#lunch {
+		background-position:-76px -410px;
+	}
+	#lunch:hover,#lunch:focus,#lunch:active {
+		background-position:-76px -205px;
+	}
+	#lunch.active {
+		background-position:-76px 0;
+	}
+	#brunch {
+		background-position:-154px -410px;
+	}
+	#brunch:hover,#brunch:focus,#brunch:active {
+		background-position:-154px -205px;
+	}
+	#brunch.active {
+		background-position:-154px 0;
+	}
+	#dinner {
+		background-position:-232px -410px;
+	}
+	#dinner:hover,#dinner:focus,#dinner:active {
+		background-position:-232px -205px;
+	}
+	#dinner.active {
+		background-position:-232px 0;
+	}
+	#bakery {
+		background-position:-309px -410px;
+	}
+	#bakery:hover,#bakery:focus,#bakery:active {
+		background-position:-309px -205px;
+	}
+	#bakery.active {
+		background-position:-309px 0;
+	}		
+/*Main Content box*/
+	#content, #main {
+		margin:27px;
+		color:#fdffca;
+		overflow:hidden;
+	}
+	
+	#content a {
+		color:#afbc00;
+		text-decoration:none;
+	}
+	
+	#content a:hover, a:focus {
+		text-decoration:underline;
+	}
+	#content img {
+		float:left;
+		padding:10px;
+	}
+	#introquote {
+		padding-top:50px;
+		margin:0 40px;
+		font-size:2.5em;
+		width:40%;
+		height:auto;
+	}
+	#introquote p:before {
+		content:open-quote;
+	}
+	#introquote p:after {
+		content:close-quote;
+	}
+	#introquote cite {
+		float:right;
+	}
+#footer {
+	clear:both;
+	background:#f1ae00;
+	height:50px;
+}
+
+#footer h6 {
+	display:block;
+	width:600px;
+	color:#1b140b;
+	float:left;
+}
+
+#testing {
+	margin:0 auto;
+	width:600px;
+}
+.title {
+	padding-left:20px;
+	font-size:2em;
+	font-family:Georgia, "Times New Roman", Times, serif;
+	color:#f37001;
+	padding:5px 20px 0 10px;
+}
+.description {
+	padding-left:35px;
+	font-size:1.2em;
+	font-family:Arial, Helvetica, sans-serif;
+	padding:3px 35px 5px;
+}
+
+
+.menu, #aboutus {
+	width:63%;
+	float:left;
+}
+.menu h2, #aboutus h2 {
+	display:block;
+	width:100%	;
+	font-variant : small-caps;
+	letter-spacing : 0.3em;
+	border-bottom:3px #afbc00 solid;
+	height:1em;
+	font-size:3em;
+	margin:20px 0;
+	padding-left:5px;
+	padding-bottom:2px;
+}
+
+.menu img {
+	width:36%;
+}
+p.note {
+	font-size:1.8em;
+	margin-top:10px;
+	font-style:italic;
+}
+#aboutus p {
+	font-size:2em;
+	margin-bottom:10px;
+}
+#aboutus ul {
+	list-style:none;
+}
+#aboutus li {
+	margin-left:20px;
+	font-size:2em;
+}
+#aboutus h4 {
+	font-family:Georgia, "Times New Roman", Times, serif;
+	margin:10px 0 10px -20px;
+	color:#f37001;
+}
+div#background {
+	position:relative;
+	top:0;
+}
+#depth {
+	z-index:0;
+}
+div#wrapper {
+	z-index:1;
+	position:absolute;
+	top:0;
+	height:225px;
+	width:100%;
+}
+#footer h6 {
+	font-size:2em;
+	padding:20px 20px 0 20px;
+}
+#picture {
+	width:63%;
+}
+#picture img {
+	float:left;
+	max-width:100%;
+	padding:0;
+	margin:25px 0 0 22px;
+}
+#sidebar p {
+	font-size:4em;
+	padding:80px 40px;
+	overflow:hidden;
+}
+#sidebar p span {
+	color:#f37001;
+}
+#main {
+	margin:0;
+	padding:0;
+}
