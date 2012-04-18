@@ -231,7 +231,7 @@
 	$(document).ready(function () {
 		//Inject our canvas into the "background".
 		//Excanvas doesn't like the way jQuery handles DOM elements, 
-		//so we're using straigh DOM methods.
+		//so we're using straight DOM methods.
 		var d = document,
 			w = d.getElementById("wrapper"),
 			divbg = d.createElement("div"),
@@ -257,7 +257,8 @@
 
 		//we need to refresh the background if colors change, such as with a hover event.
 		$("a.pop").bind("mouseenter mouseleave focusin focusout", draw);
-		//Our canvas needs to grown with the document.
+
+		//Our canvas needs to grow with the document.
 		//Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
 		//"hard" way.
 		$(window).resize(function () {
