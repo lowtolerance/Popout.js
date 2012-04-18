@@ -2,18 +2,20 @@
 
 	"use strict";
 
-	var config = cfg || {
-		'canvasID': 'depth',
-		'popoutSelector': '.pop',
-		'midPoint': {
+	//Variable defaults. Better to configure these through the initialization script at js/init.js
+	var config =  {
+		'canvasID': cfg.canvasID || 'depth',
+		'popoutSelector': cfg.popoutSelector || '.pop',
+		'vanishingPoint': cfg.vanishingPoint || {
 			'x': Math.round($(document).width() / 2),
 			'y': Math.round($(document).height() / 2)
 		},
-		'height': Math.round($(document).height()),
-		'width': Math.round($(document).width()),
-		'gradientStop': 60,
-		'stroke': true
+		'height': cfg.height || Math.round($(document).height()),
+		'width': cfg.width || Math.round($(document).width()),
+		'gradientStop': cfg.gradientStop || 60,
+		'stroke': cfg.stroke || false
 	},
+
 	//CONSTANTS - DO NOT MODIFY
 		UPPER_LEFT = 0,
 		UPPER_RIGHT = 1,
@@ -59,15 +61,15 @@
 
 		//Determine where corners are in relation to the mid point to
 		//determine what sides should be visible.
-		if (this.coord[UPPER_LEFT][X] >= config.midPoint.x) { this.leftFace = true; }
-		if (this.coord[UPPER_RIGHT][X] < config.midPoint.x) { this.rightFace = true; }
-		if (this.coord[UPPER_LEFT][Y] > config.midPoint.y) { this.topFace = true; }
-		if (this.coord[LOWER_LEFT][Y] <= config.midPoint.y) { this.bottomFace = true; }
+		if (this.coord[UPPER_LEFT][X] >= config.vanishingPoint.x) { this.leftFace = true; }
+		if (this.coord[UPPER_RIGHT][X] < config.vanishingPoint.x) { this.rightFace = true; }
+		if (this.coord[UPPER_LEFT][Y] > config.vanishingPoint.y) { this.topFace = true; }
+		if (this.coord[LOWER_LEFT][Y] <= config.vanishingPoint.y) { this.bottomFace = true; }
 
-		//Determine which corner is closest to the midpoint.
+		//Determine which corner is closest to the vanishingPoint.
 		this.distance = 99999999;
 		for (a = 0; a < 3; a += 1) {
-			distBuff = Math.sqrt(Math.pow(config.midPoint.x - this.coord[a][X], 2) + Math.pow(config.midPoint.y - this.coord[a][Y], 2));
+			distBuff = Math.sqrt(Math.pow(config.vanishingPoint.x - this.coord[a][X], 2) + Math.pow(config.vanishingPoint.y - this.coord[a][Y], 2));
 			if (distBuff < this.distance) {
 				this.distance = distBuff;
 			}
@@ -95,25 +97,25 @@
 			if (side) {
 				lineargradient = ctx.createLinearGradient(
 					coord[x1][X] + config.gradientStop,
-					config.midPoint.y,
-					config.midPoint.x,
-					config.midPoint.y
+					config.vanishingPoint.y,
+					config.vanishingPoint.x,
+					config.vanishingPoint.y
 				);
 			} else {
 				lineargradient = ctx.createLinearGradient(
 					coord[UPPER_LEFT][X],
 					coord[LOWER_RIGHT][Y] + config.gradientStop,
 					coord[UPPER_LEFT][X],
-					config.midPoint.y
+					config.vanishingPoint.y
 				);
 			}
 			lineargradient.addColorStop(0, popColor);
 			lineargradient.addColorStop(1, 'black');
 			ctx.fillStyle = lineargradient;
 			ctx.beginPath();
-			//Draw from one corner to the midpoint, then to the other corner, and apply a stroke and a fill.
+			//Draw from one corner to the vanishingPoint, then to the other corner, and apply a stroke and a fill.
 			ctx.moveTo(coord[x1][X], coord[x1][Y]);
-			ctx.lineTo(config.midPoint.x, config.midPoint.y);
+			ctx.lineTo(config.vanishingPoint.x, config.vanishingPoint.y);
 			ctx.lineTo(coord[x2][X], coord[x2][Y]);
 			if (config.stroke) { ctx.stroke(); }
 			ctx.fill();
@@ -122,7 +124,7 @@
 
 	//Pretty self-explanatory.
 	function clearCanvas() {
-		var canvas = document.getElementById('depth'),
+		var canvas = document.getElementById(config.canvasID),
 			G_vmlCanvasManager,
 			ctx;
 
@@ -131,7 +133,7 @@
 		}
 		if (canvas.getContext) {
 			ctx = canvas.getContext('2d');
-			ctx.clearRect(0, 0, $(document).width(), $(document).height());
+			ctx.clearRect(0, 0, config.width, config.height);
 		}
 	}
 
@@ -145,7 +147,7 @@
 	}
 
 	//Our main function. Loops through each element given the "pop" class, and gets
-	//necessary information: offset, dimensions, color, and the midpoint of the document.
+	//necessary information: offset, dimensions, color, and the vanishingPoint of the document.
 	function draw() {
 
 		var elements = [],
@@ -163,8 +165,8 @@
 		for (a = 0; a < i; a += 1) {
 
 			//In the following conditional statements, we're testing to see which direction faces should be drawn,
-			//based on a 1-point perspective drawn from the midpoint. In the first statement, we're testing to see
-			//if the lower-left hand corner coord[3] is higher on the screen than the midpoint. If so, we set it's gradient
+			//based on a 1-point perspective drawn from the vanishingPoint. In the first statement, we're testing to see
+			//if the lower-left hand corner coord[3] is higher on the screen than the vanishingPoint. If so, we set it's gradient
 			//starting position to start at a point in space 60pixels higher(-60) than the actual side, and we also
 			//declare which corners make up our face, in this case the lower two corners, coord[3], and coord[2].
 
@@ -262,7 +264,7 @@
 				depth = document.getElementById(config.canvasID),
 				docHeight = getDocHeight();
 
-			config.height = $(document).height();
+
 			depth.setAttribute("width", size.width);
 			if (config.height < docHeight) {
 				depth.setAttribute("height", docHeight - config.height);
@@ -271,4 +273,4 @@
 		});
 		draw();
 	});
-}());
+}(POPOUT_cfg));
