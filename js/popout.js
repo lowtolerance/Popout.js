@@ -1,182 +1,274 @@
-//Determine our 4 corner coordinates based off the given dimensions and offsets.
-function getCornerVals(width,height,left,top){
-	var corner = new Array (4);
-	for (i=0;i<4;i++)
-		corner[i] = new Array(2);
-	corner[0][0] = left;
-	corner[0][1] = top;
-	corner[1][0] = left+width;
-	corner[1][1] = top;
-	corner[2][0] = left+width;
-	corner[2][1] = top+height;
-	corner[3][0] = left;
-	corner[3][1] = top+height;
-	return corner; 
-}
+(function (cfg) {
 
-//Retrieves and calculates dimensions and offsets of our divs as well as determine what
-//faces get drawn.
-function getElemProperties(nThis,midPoint) {
-	//TODO-Look into replacing jQuery reliance.
-	this.width = Math.round($(nThis).outerWidth());
-    this.height = Math.round($(nThis).outerHeight());
-    offset = $(nThis).offset();
-    this.left=offset.left;
-    this.top=offset.top;
-    this.coord = getCornerVals(this.width,this.height,this.left,this.top);
-   	this.popColor=$(nThis).css("background-color");
-	//Determine where corners are in relation to the mid point to
-	//determine what sides should be visible.
-   	if (this.coord[0][0] >= midPoint[0]) this.leftFace=true;
-   	if (this.coord[1][0] < midPoint[0]) this.rightFace=true;
-   	if (this.coord[0][1] > midPoint[1]) this.topFace=true;
-   	if (this.coord[3][1] <= midPoint[1]) this.bottomFace=true;
-	//Determine which corner is closest to the midpoint.
-   	this.distance=99999999;
-   	for (a=0;a<3;a++) {
-   		distBuff=Math.sqrt(Math.pow(midPoint[0]-this.coord[a][0],2) +Math.pow(midPoint[1]-this.coord[a][1],2));
-   		if (distBuff < this.distance) this.distance = distBuff;
-   	}  			
-}
+	"use strict";
 
-//Set up our canvas and draw each side. Additionally, set our gradient fill.
-function drawFace(coord, mid, popColor,gs,x1,x2,side) {
-	//Gradients in our case run either up/down or left right.
-	//We have two algorithms depending on whether or not it's a sideways facing piece.
-	//Rather than parse the "rgb(r,g,b)" string(popColor) retrieved from elsewhere, it is simply
-	//offset with the gs variable to give the illusion that it starts at a darker color.
-	var canvas = document.getElementById('depth');
-	//This is for excanvas.js
-	var G_vmlCanvasManager;
-	if (G_vmlCanvasManager != undefined) { // ie IE
-                G_vmlCanvasManager.initElement(canvas);
-        }
-	//Init canvas
-	if (canvas.getContext) {
-		var ctx = canvas.getContext('2d'); 
-		if (side) var lineargradient=ctx.createLinearGradient(coord[x1][0]+gs,mid[1],mid[0],mid[1]);
-		else var lineargradient=ctx.createLinearGradient(coord[0][0],coord[2][1]+gs,coord[0][0],mid[1]);
-		lineargradient.addColorStop(0,popColor);
-		lineargradient.addColorStop(1,'black');
-		ctx.fillStyle=lineargradient;
-		ctx.beginPath();
-		//Draw from one corner to the midpoint, then to the other corner, and apply a stroke and a fill.
-		ctx.moveTo(coord[x1][0],coord[x1][1]);
-		ctx.lineTo(mid[0],mid[1]);
-		ctx.lineTo(coord[x2][0],coord[x2][1]);
-		ctx.stroke();
-		ctx.fill();
+	var config = cfg || {
+		'canvasID': 'depth',
+		'popoutSelector': '.pop',
+		'midPoint': {
+			'x': Math.round($(document).width() / 2),
+			'y': Math.round($(document).height() / 2)
+		},
+		'height': Math.round($(document).height()),
+		'width': Math.round($(document).width()),
+		'gradientStop': 60,
+		'stroke': true
+	},
+	//CONSTANTS - DO NOT MODIFY
+		UPPER_LEFT = 0,
+		UPPER_RIGHT = 1,
+		LOWER_RIGHT = 2,
+		LOWER_LEFT = 3,
+		X = 0,
+		Y = 1;
+
+
+//Determine our corner coordinates based off the given dimensions and offsets.
+	function getCornerVals(el) {
+		var corner = new Array (4),
+			i;
+		for (i = 0; i < 4; i += 1) {
+			corner[i] = new Array(2);
+		}
+		corner[UPPER_LEFT][X] = el.left;
+		corner[UPPER_LEFT][Y] = el.top;
+		corner[UPPER_RIGHT][X] = el.left + el.width;
+		corner[UPPER_RIGHT][Y] = el.top;
+		corner[LOWER_RIGHT][X] = el.left + el.width;
+		corner[LOWER_RIGHT][Y] = el.top + el.height;
+		corner[LOWER_LEFT][X] = el.left;
+		corner[LOWER_LEFT][Y] = el.top + el.height;
+		return corner;
 	}
-}
 
-//Pretty self-explanatory.
-function clearCanvas() {
-	var canvas = document.getElementById('depth');
-	var G_vmlCanvasManager;
-	if (G_vmlCanvasManager != undefined) { // ie IE
-                G_vmlCanvasManager.initElement(canvas);
-        }
-	if (canvas.getContext) {
-		var ctx = canvas.getContext('2d');
-		ctx.clearRect(0,0,$(document).width(),$(document).height());
+	//Retrieves and calculates dimensions and offsets of our divs as well as determine what
+	//faces get drawn.
+	function GetElemProperties(nThis) {
+
+		var offset = $(nThis).offset(),
+			distBuff,
+			a;
+
+		//TODO-Look into replacing jQuery reliance.
+		this.width = Math.round($(nThis).outerWidth());
+		this.height = Math.round($(nThis).outerHeight());
+		this.left = offset.left;
+		this.top = offset.top;
+		this.coord = getCornerVals(this);
+		this.popColor = $(nThis).css("background-color");
+
+		//Determine where corners are in relation to the mid point to
+		//determine what sides should be visible.
+		if (this.coord[UPPER_LEFT][X] >= config.midPoint.x) { this.leftFace = true; }
+		if (this.coord[UPPER_RIGHT][X] < config.midPoint.x) { this.rightFace = true; }
+		if (this.coord[UPPER_LEFT][Y] > config.midPoint.y) { this.topFace = true; }
+		if (this.coord[LOWER_LEFT][Y] <= config.midPoint.y) { this.bottomFace = true; }
+
+		//Determine which corner is closest to the midpoint.
+		this.distance = 99999999;
+		for (a = 0; a < 3; a += 1) {
+			distBuff = Math.sqrt(Math.pow(config.midPoint.x - this.coord[a][X], 2) + Math.pow(config.midPoint.y - this.coord[a][Y], 2));
+			if (distBuff < this.distance) {
+				this.distance = distBuff;
+			}
+		}
 	}
-}
 
-//Sort our array of elements to be drawn using the Painter's algorithm.
-//Draws objects from furthest out to closest in.
-function sortByDistance(a,b) {
-	var x = a.distance;
-	var y = b.distance;
-	return ((x < y) ? 1 : ((x > y) ? -1  : 0));
-}
+	//Set up our canvas and draw each side. Additionally, set our gradient fill.
+	function drawFace(coord, popColor, x1, x2, side) {
+		//Gradients in our case run either up/down or left right.
+		//We have two algorithms depending on whether or not it's a sideways facing piece.
+		//Rather than parse the "rgb(r,g,b)" string(popColor) retrieved from elsewhere, it is simply
+		//offset with the config.gradientStop variable to give the illusion that it starts at a darker color.
+		var canvas = document.getElementById(config.canvasID),
+			G_vmlCanvasManager,
+			ctx,
+			lineargradient;
 
-//Our main function. Loops through each element given the "pop" class, and gets
-//necessary information: offset, dimensions, color, and the midpoint of the document.
-function draw(e) {
-	setTimeout(function() {
-		var arr = new Array()
-		var i = 0;
-		var mid = new Array(2);
-		$(".pop").each(function() {
-			mid[0]=Math.round($(document).width()/2);
-			mid[1]=Math.round($(document).height()/2);
-			arr[arr.length++]=new getElemProperties(this,mid);
-			i++;
+		//This bit is to make exCanvas happy.
+		if (G_vmlCanvasManager !== undefined) { // ie IE
+			G_vmlCanvasManager.initElement(canvas);
+		}
+		//Init canvas
+		if (canvas.getContext) {
+			ctx = canvas.getContext('2d');
+			if (side) {
+				lineargradient = ctx.createLinearGradient(
+					coord[x1][X] + config.gradientStop,
+					config.midPoint.y,
+					config.midPoint.x,
+					config.midPoint.y
+				);
+			} else {
+				lineargradient = ctx.createLinearGradient(
+					coord[UPPER_LEFT][X],
+					coord[LOWER_RIGHT][Y] + config.gradientStop,
+					coord[UPPER_LEFT][X],
+					config.midPoint.y
+				);
+			}
+			lineargradient.addColorStop(0, popColor);
+			lineargradient.addColorStop(1, 'black');
+			ctx.fillStyle = lineargradient;
+			ctx.beginPath();
+			//Draw from one corner to the midpoint, then to the other corner, and apply a stroke and a fill.
+			ctx.moveTo(coord[x1][X], coord[x1][Y]);
+			ctx.lineTo(config.midPoint.x, config.midPoint.y);
+			ctx.lineTo(coord[x2][X], coord[x2][Y]);
+			if (config.stroke) { ctx.stroke(); }
+			ctx.fill();
+		}
+	}
+
+	//Pretty self-explanatory.
+	function clearCanvas() {
+		var canvas = document.getElementById('depth'),
+			G_vmlCanvasManager,
+			ctx;
+
+		if (G_vmlCanvasManager !== undefined) { // ie IE
+			G_vmlCanvasManager.initElement(canvas);
+		}
+		if (canvas.getContext) {
+			ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, $(document).width(), $(document).height());
+		}
+	}
+
+	//Sort our array of elements to be drawn using the Painter's algorithm.
+	//Draws objects from furthest out to closest in.
+	function sortByDistance(a, b) {
+		var x = a.distance,
+			y = b.distance;
+
+		return ((x < y) ? 1 : ((x > y) ? -1  : 0));
+	}
+
+	//Our main function. Loops through each element given the "pop" class, and gets
+	//necessary information: offset, dimensions, color, and the midpoint of the document.
+	function draw() {
+
+		var elements = [],
+			isSide = true,
+			i = 0,
+			a;
+
+		$(config.popoutSelector).each(function () {
+			elements[elements.length += 1] = new GetElemProperties(this);
+			i += 1;
 		});
-		arr.sort(sortByDistance);
+		elements.sort(sortByDistance);
 		clearCanvas();
-		for (a=0;a<i;a++) {
+
+		for (a = 0; a < i; a += 1) {
+
 			//In the following conditional statements, we're testing to see which direction faces should be drawn,
 			//based on a 1-point perspective drawn from the midpoint. In the first statement, we're testing to see
 			//if the lower-left hand corner coord[3] is higher on the screen than the midpoint. If so, we set it's gradient
 			//starting position to start at a point in space 60pixels higher(-60) than the actual side, and we also
 			//declare which corners make up our face, in this case the lower two corners, coord[3], and coord[2].
-			if (arr[a].bottomFace) drawFace(arr[a].coord,mid,arr[a].popColor,-60,3,2);
-			if (arr[a].topFace) drawFace(arr[a].coord,mid,arr[a].popColor,60,0,1);
-			if (arr[a].leftFace) drawFace(arr[a].coord,mid,arr[a].popColor,60,0,3,true);
-			if (arr[a].rightFace) drawFace(arr[a].coord,mid,arr[a].popColor,-60,1,2,true);
+
+
+			if (elements[a].bottomFace) {
+				drawFace(
+					elements[a].coord,
+					elements[a].popColor,
+					LOWER_LEFT,
+					LOWER_RIGHT
+				);
+			}
+			if (elements[a].topFace) {
+				drawFace(
+					elements[a].coord,
+					elements[a].popColor,
+					UPPER_LEFT,
+					UPPER_RIGHT
+				);
+			}
+			if (elements[a].leftFace) {
+				drawFace(
+					elements[a].coord,
+					elements[a].popColor,
+					UPPER_LEFT,
+					LOWER_LEFT,
+					isSide
+				);
+			}
+			if (elements[a].rightFace) {
+				drawFace(
+					elements[a].coord,
+					elements[a].popColor,
+					UPPER_RIGHT,
+					LOWER_RIGHT,
+					isSide
+				);
+			}
 		}
-	},1);
-}
+	}
 
-function getDocHeight() {
-    var D = document;
-    return Math.max(
-        Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
-        Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
-        Math.max(D.body.clientHeight, D.documentElement.clientHeight)
-    );
-}
+	function getDocHeight() {
+		var D = document;
+		return Math.max(
+			Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
+			Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
+			Math.max(D.body.clientHeight, D.documentElement.clientHeight)
+		);
+	}
 
-function getWidth(){
-  	if( typeof( window.innerWidth ) == 'number' ) {
-   		//Non-IE
-    	this.width = window.innerWidth;
-  	} 	
-  	else if( document.documentElement && ( document.documentElement.clientWidth ) ) {
-    	//IE 6+ in 'standards compliant mode'
-		this.width = document.documentElement.clientWidth;
-	} 
-}
+	function GetWidth() {
+		if (typeof (window.innerWidth) === 'number') {
+			//Non-IE
+			this.width = window.innerWidth;
+		} else if (document.documentElement && (document.documentElement.clientWidth)) {
+			//IE 6+ in 'standards compliant mode'
+			this.width = document.documentElement.clientWidth;
+		}
+	}
 
-$(document).ready(function () {
-	//Inject our canvas into the "background".
-	//Excanvas doesn't like the way jQuery handles DOM elements, 
-	//so we're using straigh DOM methods.
-	d=document;
-	var w=d.getElementById("wrapper");
-	var divbg = d.createElement("div");
-	var cvs = d.createElement("canvas");
-	var size=new getWidth();
-	cvs.setAttribute("width",size.width);
-	cvs.setAttribute("height",getDocHeight());
-	cvs.setAttribute("id","depth");
-	divbg.setAttribute("id","background");
-	divbg.appendChild(cvs);
-	w.parentNode.insertBefore(divbg,w);
-	
-	//Hijax our links
-	$("a.pop").attr("href","#");
-	$("a.pop").click(function(){
-		$(".active").removeClass('active');
-        $(this).addClass('active');
-		var activepage=$(".active").attr("id");
-		$("#content").load(activepage+".html .loadme",draw);
+	$(document).ready(function () {
+		//Inject our canvas into the "background".
+		//Excanvas doesn't like the way jQuery handles DOM elements, 
+		//so we're using straigh DOM methods.
+		var d = document,
+			w = d.getElementById("wrapper"),
+			divbg = d.createElement("div"),
+			cvs = d.createElement("canvas"),
+			size = new GetWidth();
+
+		cvs.setAttribute("width", size.width);
+		cvs.setAttribute("height", getDocHeight());
+		cvs.setAttribute("id", config.canvasID);
+		divbg.setAttribute("id", "background");
+		divbg.appendChild(cvs);
+		w.parentNode.insertBefore(divbg, w);
+
+		//Hijax our links
+		$("a" + config.popoutSelector).attr("href", "#");
+		$("a" + config.popoutSelector).click(function () {
+			$(".active").removeClass('active');
+			$(this).addClass('active');
+			var activepage = $(".active").attr("id");
+			$("#content").load(activepage + ".html .loadme", draw);
+			draw();
+		});
+
+		//we need to refresh the background if colors change, such as with a hover event.
+		$("a.pop").bind("mouseenter mouseleave focusin focusout", draw);
+		//Our canvas needs to grown with the document.
+		//Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
+		//"hard" way.
+		$(window).resize(function () {
+			var size = new GetWidth(),
+				depth = document.getElementById(config.canvasID),
+				docHeight = getDocHeight();
+
+			config.height = $(document).height();
+			depth.setAttribute("width", size.width);
+			if (config.height < docHeight) {
+				depth.setAttribute("height", docHeight - config.height);
+			}
+			draw();
+		});
 		draw();
 	});
-	//we need to refresh the background if colors change, such as with a hover event.
-	$("a.pop").bind("mouseenter mouseleave focusin focusout",draw);
-	//Our canvas needs to grown with the document.
-	//Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
-	//"hard" way.
-	$(window).resize(function() {
-		var size=new getWidth();
-		var depth=document.getElementById("depth");
-		var height=$(document).height();
-		var docHeight=getDocHeight();
-		depth.setAttribute("width",size.width);	
-		if (height < docHeight) depth.setAttribute("height",docHeight-height);
-		draw()
-	});
-	draw();
-});
+}());
