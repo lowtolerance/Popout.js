@@ -5,12 +5,15 @@ var POPOUT_cfg = {
 	
 	'canvasID': 'depth',  							//ID to apply to injected canvas
 	'popSelector': '.pop',							//Selector to use for targeting elements to be "popped".
-
-	'vanishingPoint': {         					//Screen position to use as vanishing point.
-		'x': Math.round($(document).width() / 2),   //If overriding defaults, X & Y must BOTH be declared
-		'y': Math.round($(document).height() /2)
-	},
-
+	
 	'gradientStop': 60,								//Color stop adjustment.
-	'stroke': true									//Apply stroke effect?
+	'stroke': true,									//Apply stroke effect?
+	//optional
+	//'height': 225,
+	//'vanishingPoint': {
+	//	'x': 200,
+	//	'y': 100
+	//}
+
+
 }

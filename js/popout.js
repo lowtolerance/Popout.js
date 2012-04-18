@@ -8,8 +8,10 @@
 		'popoutSelector': cfg.popoutSelector || '.pop',
 		'vanishingPoint': cfg.vanishingPoint || {
 			'x': Math.round($(document).width() / 2),
-			'y': Math.round($(document).height() / 2)
-		},	
+			'y': Math.round($(document).height() / 2),
+			'recalc': true
+		},
+		'height': cfg.height || getDocHeight(),
 		'gradientStop': cfg.gradientStop || 60,
 		'stroke': cfg.stroke || false
 	},
@@ -24,6 +26,11 @@
 
 
 //Determine our corner coordinates based off the given dimensions and offsets.
+	function setMidPoint() {
+		config.vanishingPoint.x = Math.round($(document).width() / 2);
+		config.vanishingPoint.y = Math.round($(document).height() / 2);
+	}
+
 	function getCornerVals(el) {
 		var corner = new Array (4),
 			i;
@@ -237,7 +244,7 @@
 			size = new GetWidth();
 
 		cvs.setAttribute("width", size.width);
-		cvs.setAttribute("height", getDocHeight());
+		cvs.setAttribute("height", config.height || getDocHeight());
 		cvs.setAttribute("id", config.canvasID);
 		divbg.setAttribute("id", "background");
 		divbg.appendChild(cvs);
@@ -264,7 +271,9 @@
 				depth = document.getElementById(config.canvasID),
 				height = $(document).height(),
 				docHeight = getDocHeight();
-
+				if (config.vanishingPoint.recalc) {
+					setMidPoint();
+				}
 
 			depth.setAttribute("width", size.width);
 			if (height < docHeight) {
