@@ -16,5 +16,15 @@ var POPOUT_cfg = {
 		'x': Math.round($(document).width() / 2),									//NOTE: You must declare both x AND y.
 		'y': 900
 	},
-    'noSides': true
+    'noSides': true,
 }
+
+$(document).ready(function() {
+	$("a.pop").attr("href", "#");
+	$("a.pop").click(function () {
+		$(".active").removeClass('active');
+		$(this).addClass('active');
+		var activepage = $(".active").attr("id");
+		$("#content").load(activepage + ".html .loadme");
+	});
+});

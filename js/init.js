@@ -19,3 +19,4 @@ var POPOUT_cfg = {
 	//noSides: true									//Only draw top and bottom faces.
 
 }
+

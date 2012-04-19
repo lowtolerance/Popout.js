@@ -14,7 +14,7 @@
 		'height': cfg.height || getDocHeight(),
 		'gradientStop': cfg.gradientStop || 60,
 		'stroke': cfg.stroke || false,
-		'noSides': cfg.noSides || false
+		'noSides': cfg.noSides || false,
 	},
 
 	//CONSTANTS - DO NOT MODIFY
@@ -155,69 +155,70 @@
 	//Our main function. Loops through each element given the "pop" class, and gets
 	//necessary information: offset, dimensions, color, and the vanishingPoint of the document.
 	function draw() {
+		setTimeout(function() {
+			var elements = [],
+				isSide = true,
+				i = 0,
+				a;
 
-		var elements = [],
-			isSide = true,
-			i = 0,
-			a;
+			$(config.popoutSelector).each(function () {
+				elements[elements.length += 1] = new GetElemProperties(this);
+				i += 1;
+			});
+			elements.sort(sortByDistance);
+			clearCanvas();
 
-		$(config.popoutSelector).each(function () {
-			elements[elements.length += 1] = new GetElemProperties(this);
-			i += 1;
-		});
-		elements.sort(sortByDistance);
-		clearCanvas();
+			for (a = 0; a < i; a += 1) {
 
-		for (a = 0; a < i; a += 1) {
-
-			//In the following conditional statements, we're testing to see which direction faces should be drawn,
-			//based on a 1-point perspective drawn from the vanishingPoint. In the first statement, we're testing to see
-			//if the lower-left hand corner coord[3] is higher on the screen than the vanishingPoint. If so, we set it's gradient
-			//starting position to start at a point in space 60pixels higher(-60) than the actual side, and we also
-			//declare which corners make up our face, in this case the lower two corners, coord[3], and coord[2].
+				//In the following conditional statements, we're testing to see which direction faces should be drawn,
+				//based on a 1-point perspective drawn from the vanishingPoint. In the first statement, we're testing to see
+				//if the lower-left hand corner coord[3] is higher on the screen than the vanishingPoint. If so, we set it's gradient
+				//starting position to start at a point in space 60pixels higher(-60) than the actual side, and we also
+				//declare which corners make up our face, in this case the lower two corners, coord[3], and coord[2].
 
 
-			if (elements[a].bottomFace) {
-				drawFace(
-					elements[a].coord,
-					elements[a].popColor,
-					config.gradientStop * -1,
-					LOWER_LEFT,
-					LOWER_RIGHT
-				);
-			}
-			if (elements[a].topFace) {
-				drawFace(
-					elements[a].coord,
-					elements[a].popColor,
-					config.gradientStop,
-					UPPER_LEFT,
-					UPPER_RIGHT
-				);
-			}
-			if (!config.noSides) {
-				if (elements[a].leftFace) {
+				if (elements[a].bottomFace) {
+					drawFace(
+						elements[a].coord,
+						elements[a].popColor,
+						config.gradientStop * -1,
+						LOWER_LEFT,
+						LOWER_RIGHT
+					);
+				}
+				if (elements[a].topFace) {
 					drawFace(
 						elements[a].coord,
 						elements[a].popColor,
 						config.gradientStop,
 						UPPER_LEFT,
-						LOWER_LEFT,
-						isSide
+						UPPER_RIGHT
 					);
 				}
-				if (elements[a].rightFace) {
-					drawFace(
-						elements[a].coord,
-						elements[a].popColor,
-						config.gradientStop * -1,
-						UPPER_RIGHT,
-						LOWER_RIGHT,
-						isSide
-					);
+				if (!config.noSides) {
+					if (elements[a].leftFace) {
+						drawFace(
+							elements[a].coord,
+							elements[a].popColor,
+							config.gradientStop,
+							UPPER_LEFT,
+							LOWER_LEFT,
+							isSide
+						);
+					}
+					if (elements[a].rightFace) {
+						drawFace(
+							elements[a].coord,
+							elements[a].popColor,
+							config.gradientStop * -1,
+							UPPER_RIGHT,
+							LOWER_RIGHT,
+							isSide
+						);
+					}
 				}
 			}
-		}
+		},1);
 	}
 
 	function getDocHeight() {
@@ -244,6 +245,8 @@
 		//Inject our canvas into the "background".
 		//Excanvas doesn't like the way jQuery handles DOM elements, 
 		//so we're using straight DOM methods.
+		//This code could really use some cleanup.
+
 		var d = document,
 			w = d.getElementById("wrapper"),
 			divbg = d.createElement("div"),
@@ -257,18 +260,10 @@
 		divbg.appendChild(cvs);
 		w.parentNode.insertBefore(divbg, w);
 
-		//Hijax our links
-		$("a" + config.popoutSelector).attr("href", "#");
-		$("a" + config.popoutSelector).click(function () {
-			$(".active").removeClass('active');
-			$(this).addClass('active');
-			var activepage = $(".active").attr("id");
-			$("#content").load(activepage + ".html .loadme", draw);
-			draw();
-		});
-
 		//we need to refresh the background if colors change, such as with a hover event.
-		$("a.pop").bind("mouseenter mouseleave focusin focusout", draw);
+		$(document).ready(function() {
+			$("a.pop").bind("mouseenter mouseleave click focusin focusout", draw);
+		});
 
 		//Our canvas needs to grow with the document.
 		//Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
