@@ -28,6 +28,6 @@ $(document).ready(function() {
 		$(".active").removeClass('active');
 		$(this).addClass('active');
 		var activepage = $(".active").attr("id");
-		$("#main").load(activepage + ".html .loadme");
+		$("#content").load(activepage + ".html .loadme");
 	});
 });
