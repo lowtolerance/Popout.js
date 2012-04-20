@@ -4,11 +4,17 @@
 
 ###Intro 
 
-A client requested a website with a "retro-tech" look. Unfortunately, the client's business never saw the light of day, but I felt that the work I put into it is still interesting enough to show off. What you're looking at is a "3D layout" script. It injects a window-sized canvas element into the page, and it treats HTML elements as if they were being seen top-down in a one-point perspective.
+A client requested a website with a "retro-tech" look. Unfortunately, the client's business never saw the light of day, but I felt that the work I put into it is still interesting enough to show off. What you're looking at is a "3D layout" script. It gives elements with a class name of `pop`(configurable, see below) the appearance of receeding toward a vanishing point. 
 
-The code could very likely use some cleanup(and I'm still interested enough in it that I may very well revisit it at some time in the future), but the foundation is there and working rather well.
+Popout.js extends 2D HTML elements into the third dimension by projecting them toward a point on the screen(though I suppose there is nothing stopping you from defining a point *off* the screen). If you've ever taken a drawing class, you probably understand this as [one-point perspective](http://drawsketch.about.com/od/perspective/ss/1ptperspective.htm). It automatically picks up the background color of these elements and shades the sides accordingly, giving it a more realistic illusion of receeding into the depths of the screen.
 
-You can see it action [here](http://lowtolerance.github.com/Popout.js)(and also a somewhat more practical example [here](http://lowtolerance.github.com/Popout.js/generica)).
+This is easier to see in action than it is for me to explain:
+
+Check it out in a simple demo [here](http://lowtolerance.github.com/Popout.js). As you can see and it handles :hover states, colors with transparency just fine.
+
+Also, a somewhat more practical example that uses some non-default configuration options is [here](http://lowtolerance.github.com/Popout.js/generica)).
+
+As you can see, Popout.js is fairly flexible.
 
 ---------------------
 
@@ -22,16 +28,19 @@ Popout.js is fairly straight-forward to include in your pages. Just add:
 <script src="js/popout.js" type="text/javascript"></script>
 ```
 
-to the bottom of your pages. By default, Popout.js will look for any elements with a classname of 'pop' and style them accordingly. You can override this classname and other variables by modifying the `init.js` script.
+to the bottom of your pages. If you need to support IE, include [ExplorerCanvas](http://excanvas.sourceforge.net/) as well.
 
-Configuration variables include:
+By default, Popout.js will look for any elements with a classname of 'pop' and style them accordingly. You can override this classname and other variables by modifying the `init.js` script.
+
+####Configuration variables include:
 
 **canvasID** - Declare ID to give injected Canvas element. Default is `depth`.  
 **popoutSelector** - Class name to targer. Default is `pop`.  
 **gradientStop** - Adjust gradient. Higher values = darker gradients. Default is `60`.  
 **stroke** - Apply a stroke to drawn shapes. Deafuls is `false`.  
 
-There are also some experimental configuration variables, but they come with some caveats:
+####Experimental variables
+These come with some caveats. You have been warned!
 
 **height** - Declare canvas height. By default, the canvas is window-sized, and will resize along with the window. *Overriding the default will set a static the canvas element to a static height.*  
 **noSides** - Only draw top and bottom faces, ignoring the right and left sides. Default is `false`.  
@@ -46,5 +55,8 @@ There are also some experimental configuration variables, but they come with som
 
 Both `x` and `y` must be declared together. By default, `vanishingPoint.x` & `vanishingPoint.y` are set to the center of the window, and it is recalculated if the window is resized. Overriding this will result in a static vanishing point.
 
+----------------------
 
+###To-Do
 
+A proper To-Do.
