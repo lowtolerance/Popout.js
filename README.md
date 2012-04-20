@@ -26,15 +26,15 @@ to the bottom of your pages. By default, Popout.js will look for any elements wi
 
 Configuration variables include:
 
-**canvasID** - Declare ID to give injected Canvas element. Default is `depth`.
-**popoutSelector** - Class name to targer. Default is `pop`.
-**gradientStop** - Adjust gradient. Higher values = darker gradients. Default is `60`.
-**stroke** - Apply a stroke to drawn shapes. Deafuls is `false`.
+**canvasID** - Declare ID to give injected Canvas element. Default is `depth`.  
+**popoutSelector** - Class name to targer. Default is `pop`.  
+**gradientStop** - Adjust gradient. Higher values = darker gradients. Default is `60`.  
+**stroke** - Apply a stroke to drawn shapes. Deafuls is `false`.  
 
 There are also some experimental configuration variables, but they come with some caveats:
 
-**height** - Declare canvas height. By default, the canvas is window-sized, and will resize along with the window. *Overriding the default will set a static the canvas element to a static height.*
-**noSides** - Only draw top and bottom faces, ignoring the right and left sides. Default is `false`.
+**height** - Declare canvas height. By default, the canvas is window-sized, and will resize along with the window. *Overriding the default will set a static the canvas element to a static height.*  
+**noSides** - Only draw top and bottom faces, ignoring the right and left sides. Default is `false`.  
 **vanishingPoint** - Declare an alternate vanishing point, in the format:
 
 ```javascript
