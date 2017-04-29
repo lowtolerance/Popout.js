@@ -20,7 +20,7 @@ var POPOUT_cfg = {
     'noSides': true,
 }
 
-$(document).ready(function() {
+$(document).ready(() => {
 
 	//Hijax links
 	$("a.pop").attr("href", "#");

@@ -1,9 +1,8 @@
-(function (cfg) {
+((cfg => {
+    "use strict";
 
-	"use strict";
-
-	//Variable defaults. Better to configure these through the initialization script at js/init.js
-	var config =  {
+    //Variable defaults. Better to configure these through the initialization script at js/init.js
+    var config =  {
 		'canvasID': cfg.canvasID || 'depth',
 		'popoutSelector': cfg.popoutSelector || '.pop',
 		'vanishingPoint': cfg.vanishingPoint || {
@@ -15,90 +14,91 @@
 		'gradientStop': cfg.gradientStop || 60,
 		'stroke': cfg.stroke || false,
 		'noSides': cfg.noSides || false,
-	},
+	};
 
-	//CONSTANTS - DO NOT MODIFY
-		UPPER_LEFT = 0,
-		UPPER_RIGHT = 1,
-		LOWER_RIGHT = 2,
-		LOWER_LEFT = 3,
-		X = 0,
-		Y = 1;
+    var //CONSTANTS - DO NOT MODIFY
+    UPPER_LEFT = 0;
+
+    var UPPER_RIGHT = 1;
+    var LOWER_RIGHT = 2;
+    var LOWER_LEFT = 3;
+    var X = 0;
+    var Y = 1;
 
 
-//Determine our corner coordinates based off the given dimensions and offsets.
-	function setMidPoint() {
+    //Determine our corner coordinates based off the given dimensions and offsets.
+    function setMidPoint() {
 		config.vanishingPoint.x = Math.round($(document).width() / 2);
 		config.vanishingPoint.y = Math.round($(document).height() / 2);
 	}
 
-	function getCornerVals(el) {
-		var corner = new Array (4),
-			i;
-		for (i = 0; i < 4; i += 1) {
+    function getCornerVals(el) {
+        var corner = new Array (4);
+        var i;
+        for (i = 0; i < 4; i += 1) {
 			corner[i] = new Array(2);
 		}
-		corner[UPPER_LEFT][X] = el.left;
-		corner[UPPER_LEFT][Y] = el.top;
-		corner[UPPER_RIGHT][X] = el.left + el.width;
-		corner[UPPER_RIGHT][Y] = el.top;
-		corner[LOWER_RIGHT][X] = el.left + el.width;
-		corner[LOWER_RIGHT][Y] = el.top + el.height;
-		corner[LOWER_LEFT][X] = el.left;
-		corner[LOWER_LEFT][Y] = el.top + el.height;
-		return corner;
-	}
+        corner[UPPER_LEFT][X] = el.left;
+        corner[UPPER_LEFT][Y] = el.top;
+        corner[UPPER_RIGHT][X] = el.left + el.width;
+        corner[UPPER_RIGHT][Y] = el.top;
+        corner[LOWER_RIGHT][X] = el.left + el.width;
+        corner[LOWER_RIGHT][Y] = el.top + el.height;
+        corner[LOWER_LEFT][X] = el.left;
+        corner[LOWER_LEFT][Y] = el.top + el.height;
+        return corner;
+    }
 
-	//Retrieves and calculates dimensions and offsets of our divs as well as determine what
-	//faces get drawn.
-	function GetElemProperties(nThis) {
+    //Retrieves and calculates dimensions and offsets of our divs as well as determine what
+    //faces get drawn.
+    function GetElemProperties(nThis) {
+        var offset = $(nThis).offset();
+        var distBuff;
+        var a;
 
-		var offset = $(nThis).offset(),
-			distBuff,
-			a;
+        //TODO-Look into replacing jQuery reliance.
+        this.width = Math.round($(nThis).outerWidth());
+        this.height = Math.round($(nThis).outerHeight());
+        this.left = offset.left;
+        this.top = offset.top;
+        this.coord = getCornerVals(this);
+        this.popColor = $(nThis).css("background-color");
 
-		//TODO-Look into replacing jQuery reliance.
-		this.width = Math.round($(nThis).outerWidth());
-		this.height = Math.round($(nThis).outerHeight());
-		this.left = offset.left;
-		this.top = offset.top;
-		this.coord = getCornerVals(this);
-		this.popColor = $(nThis).css("background-color");
+        //Determine where corners are in relation to the mid point to
+        //determine what sides should be visible.
+        if (this.coord[UPPER_LEFT][X] >= config.vanishingPoint.x) { this.leftFace = true; }
+        if (this.coord[UPPER_RIGHT][X] < config.vanishingPoint.x) { this.rightFace = true; }
+        if (this.coord[UPPER_LEFT][Y] > config.vanishingPoint.y) { this.topFace = true; }
+        if (this.coord[LOWER_LEFT][Y] <= config.vanishingPoint.y) { this.bottomFace = true; }
 
-		//Determine where corners are in relation to the mid point to
-		//determine what sides should be visible.
-		if (this.coord[UPPER_LEFT][X] >= config.vanishingPoint.x) { this.leftFace = true; }
-		if (this.coord[UPPER_RIGHT][X] < config.vanishingPoint.x) { this.rightFace = true; }
-		if (this.coord[UPPER_LEFT][Y] > config.vanishingPoint.y) { this.topFace = true; }
-		if (this.coord[LOWER_LEFT][Y] <= config.vanishingPoint.y) { this.bottomFace = true; }
-
-		//Determine which corner is closest to the vanishingPoint.
-		this.distance = 99999999;
-		for (a = 0; a < 3; a += 1) {
-			distBuff = Math.sqrt(Math.pow(config.vanishingPoint.x - this.coord[a][X], 2) + Math.pow(config.vanishingPoint.y - this.coord[a][Y], 2));
+        //Determine which corner is closest to the vanishingPoint.
+        this.distance = 99999999;
+        for (a = 0; a < 3; a += 1) {
+			distBuff = Math.sqrt((config.vanishingPoint.x - this.coord[a][X]) ** 2 + (config.vanishingPoint.y - this.coord[a][Y]) ** 2);
 			if (distBuff < this.distance) {
 				this.distance = distBuff;
 			}
 		}
-	}
+    }
 
-	//Set up our canvas and draw each side. Additionally, set our gradient fill.
-	function drawFace(coord, popColor, gs, x1, x2, side) {
-		//Gradients in our case run either up/down or left right.
-		//We have two algorithms depending on whether or not it's a sideways facing piece.
-		//Rather than parse the "rgb(r,g,b)" string(popColor) retrieved from elsewhere, it is simply
-		//offset with the config.gradientStop variable to give the illusion that it starts at a darker color.
-		var canvas = document.getElementById(config.canvasID),
-			G_vmlCanvasManager,
-			ctx,
-			lineargradient;
+    //Set up our canvas and draw each side. Additionally, set our gradient fill.
+    function drawFace(coord, popColor, gs, x1, x2, side) {
+        //Gradients in our case run either up/down or left right.
+        //We have two algorithms depending on whether or not it's a sideways facing piece.
+        //Rather than parse the "rgb(r,g,b)" string(popColor) retrieved from elsewhere, it is simply
+        //offset with the config.gradientStop variable to give the illusion that it starts at a darker color.
+        var canvas = document.getElementById(config.canvasID);
 
-		//This bit is to make exCanvas happy.
-		if (G_vmlCanvasManager !== undefined) { // ie IE
+        var G_vmlCanvasManager;
+        var ctx;
+        var lineargradient;
+
+        //This bit is to make exCanvas happy.
+        if (G_vmlCanvasManager !== undefined) { // ie IE
 			G_vmlCanvasManager.initElement(canvas);
 		}
-		//Init canvas
-		if (canvas.getContext) {
+        //Init canvas
+        if (canvas.getContext) {
 			ctx = canvas.getContext('2d');
 			if (side) {
 				lineargradient = ctx.createLinearGradient(
@@ -126,49 +126,49 @@
 			if (config.stroke) { ctx.stroke(); }
 			ctx.fill();
 		}
-	}
+    }
 
-	//Pretty self-explanatory.
-	function clearCanvas() {
-		var canvas = document.getElementById(config.canvasID),
-			G_vmlCanvasManager,
-			ctx;
+    //Pretty self-explanatory.
+    function clearCanvas() {
+        var canvas = document.getElementById(config.canvasID);
+        var G_vmlCanvasManager;
+        var ctx;
 
-		if (G_vmlCanvasManager !== undefined) { // ie IE
+        if (G_vmlCanvasManager !== undefined) { // ie IE
 			G_vmlCanvasManager.initElement(canvas);
 		}
-		if (canvas.getContext) {
+        if (canvas.getContext) {
 			ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, $(document).width(), $(document).height());
 		}
-	}
+    }
 
-	//Sort our array of elements to be drawn using the Painter's algorithm.
-	//Draws objects from furthest out to closest in.
-	function sortByDistance(a, b) {
-		var x = a.distance,
-			y = b.distance;
+    //Sort our array of elements to be drawn using the Painter's algorithm.
+    //Draws objects from furthest out to closest in.
+    function sortByDistance(a, b) {
+        var x = a.distance;
+        var y = b.distance;
 
-		return ((x < y) ? 1 : ((x > y) ? -1  : 0));
-	}
+        return ((x < y) ? 1 : ((x > y) ? -1  : 0));
+    }
 
-	//Our main function. Loops through each element given the "pop" class, and gets
-	//necessary information: offset, dimensions, color, and the vanishingPoint of the document.
-	function draw() {
-		setTimeout(function() {
-			var elements = [],
-				isSide = true,
-				i = 0,
-				a;
+    //Our main function. Loops through each element given the "pop" class, and gets
+    //necessary information: offset, dimensions, color, and the vanishingPoint of the document.
+    function draw() {
+		setTimeout(() => {
+            var elements = [];
+            var isSide = true;
+            var i = 0;
+            var a;
 
-			$(config.popoutSelector).each(function () {
+            $(config.popoutSelector).each(function () {
 				elements[elements.length += 1] = new GetElemProperties(this);
 				i += 1;
 			});
-			elements.sort(sortByDistance);
-			clearCanvas();
+            elements.sort(sortByDistance);
+            clearCanvas();
 
-			for (a = 0; a < i; a += 1) {
+            for (a = 0; a < i; a += 1) {
 
 				//In the following conditional statements, we're testing to see which direction faces should be drawn,
 				//based on a 1-point perspective drawn from the vanishingPoint. In the first statement, we're testing to see
@@ -218,10 +218,10 @@
 					}
 				}
 			}
-		},1);
+        },1);
 	}
 
-	function getDocHeight() {
+    function getDocHeight() {
 		var D = document;
 		return Math.max(
 			Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
@@ -230,7 +230,7 @@
 		);
 	}
 
-	function GetWidth() {
+    function GetWidth() {
 		if (typeof (window.innerWidth) === 'number') {
 			//Non-IE
 			this.width = window.innerWidth;
@@ -241,50 +241,50 @@
 		return this.width;
 	}
 
-	(function () {
-		//Inject our canvas into the "background".
-		//Excanvas doesn't like the way jQuery handles DOM elements, 
-		//so we're using straight DOM methods.
-		//This code could really use some cleanup.
+    ((() => {
+        //Inject our canvas into the "background".
+        //Excanvas doesn't like the way jQuery handles DOM elements, 
+        //so we're using straight DOM methods.
+        //This code could really use some cleanup.
 
-		var d = document,
-			w = d.getElementById("wrapper"),
-			divbg = d.createElement("div"),
-			cvs = d.createElement("canvas"),
-			size = config.width || new GetWidth();
+        var d = document;
 
-		cvs.setAttribute("width", size.width);
-		cvs.setAttribute("height", config.height || getDocHeight());
-		cvs.setAttribute("id", config.canvasID);
-		divbg.setAttribute("id", "background");
-		divbg.appendChild(cvs);
-		w.parentNode.insertBefore(divbg, w);
+        var w = d.getElementById("wrapper");
+        var divbg = d.createElement("div");
+        var cvs = d.createElement("canvas");
+        var size = config.width || new GetWidth();
 
-		//we need to refresh the background if colors change, such as with a hover event.
-		$(document).ready(function() {
+        cvs.setAttribute("width", size.width);
+        cvs.setAttribute("height", config.height || getDocHeight());
+        cvs.setAttribute("id", config.canvasID);
+        divbg.setAttribute("id", "background");
+        divbg.appendChild(cvs);
+        w.parentNode.insertBefore(divbg, w);
+
+        //we need to refresh the background if colors change, such as with a hover event.
+        $(document).ready(() => {
 			$("a.pop").bind("mouseenter mouseleave click focusin focusout", draw);
 		});
 
-		//Our canvas needs to grow with the document.
-		//Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
-		//"hard" way.
-		$(window).resize(function () {
-			var size = new GetWidth(),
-				depth = document.getElementById(config.canvasID),
-				height = $(document).height(),
-				
-				docHeight = getDocHeight();
-				
-				if (config.vanishingPoint.recalc) {
-					setMidPoint();
-				}
+        //Our canvas needs to grow with the document.
+        //Again, excanvas.js doesn't like jQuery touching the DOM, so we're doing it the
+        //"hard" way.
+        $(window).resize(() => {
+            var size = new GetWidth();
+            var depth = document.getElementById(config.canvasID);
+            var height = $(document).height();
+            var docHeight = getDocHeight();
 
-			depth.setAttribute("width", size.width);
-			if (height < docHeight) {
+            if (config.vanishingPoint.recalc) {
+                setMidPoint();
+            }
+
+            depth.setAttribute("width", size.width);
+            if (height < docHeight) {
 				depth.setAttribute("height", docHeight - height);
 			}
-			draw();
-		});
-		draw();
-	}());
-}(POPOUT_cfg));
+            draw();
+        });
+        draw();
+    })());
+})(POPOUT_cfg));

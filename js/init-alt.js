@@ -19,7 +19,7 @@ var POPOUT_cfg = {
     'noSides': true,
 }
 
-$(document).ready(function() {
+$(document).ready(() => {
 	$("a.pop").attr("href", "#");
 	$("a.pop").click(function () {
 		$(".active").removeClass('active');
