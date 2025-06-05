@@ -23,12 +23,10 @@ As you can see, Popout.js is fairly flexible.
 Popout.js is fairly straight-forward to include in your pages. Just add:
 
 ```html
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script src="js/init.js" type="text/javascript"></script>	
 <script src="js/popout.js" type="text/javascript"></script>
 ```
 
-to the bottom of your pages. If you need to support IE, include [ExplorerCanvas](http://excanvas.sourceforge.net/) as well.
 
 By default, Popout.js will look for any elements with a classname of 'pop' and style them accordingly. You can override this classname and other variables by modifying the `init.js` script.
 
@@ -55,8 +53,3 @@ These come with some caveats. You have been warned!
 
 Both `x` and `y` must be declared together. By default, `vanishingPoint.x` & `vanishingPoint.y` are set to the center of the window, and it is recalculated if the window is resized. Overriding this will result in a static vanishing point.
 
-----------------------
-
-###To-Do
-
-A proper To-Do.
