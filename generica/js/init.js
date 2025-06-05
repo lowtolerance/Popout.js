@@ -20,14 +20,16 @@ var POPOUT_cfg = {
     'noSides': true,
 }
 
-$(document).ready(function() {
-
-	//Hijax links
-	$("a.pop").attr("href", "#");
-	$("a.pop").click(function () {
-		$(".active").removeClass('active');
-		$(this).addClass('active');
-		var activepage = $(".active").attr("id");
-		$("#content").load(activepage + ".html .loadme");
-	});
+document.addEventListener("DOMContentLoaded", () => {
+	document.getElementsByClassName("pop").forEach(el => {
+		el.addEventListener("click", function (e) {
+			e.preventDefault();
+			var activepage = this.id;
+			document.querySelectorAll(".active").forEach(activeEl => {
+				activeEl.classList.remove('active');
+			});
+			this.classList.add('active');
+			document.getElementById("content").load(activepage + ".html .loadme");
+		});
+	})
 });
