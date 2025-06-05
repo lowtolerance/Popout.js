@@ -12,7 +12,7 @@ This is easier to see in action than it is for me to explain:
 
 Check it out in a simple demo [here](http://lowtolerance.github.com/Popout.js). As you can see and it handles :hover states, colors with transparency just fine.
 
-Also, a somewhat more practical example that uses some non-default configuration options is [here](http://lowtolerance.github.com/Popout.js/generica)).
+Also, a somewhat more practical example that uses some non-default configuration options is [here](http://lowtolerance.github.com/Popout.js/generica).
 
 As you can see, Popout.js is fairly flexible.
 
